@@ -1,0 +1,1 @@
+Desired state of pod in form of yaml file
