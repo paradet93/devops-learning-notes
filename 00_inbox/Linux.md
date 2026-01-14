@@ -1,0 +1,2 @@
+- show Hostname: `hostname`
+- ? what is sysctl
