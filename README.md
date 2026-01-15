@@ -10,3 +10,5 @@ Braindump to learn DevOps Topics
 	- Documentation of own projects and project ideas
 - 30_Cheatsheets
 	- short lists of commands etc.
+- 40_Templates
+	- Copy and paste stuff for notekeeping
