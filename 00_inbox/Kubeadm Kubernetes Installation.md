@@ -71,3 +71,6 @@ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-ku
 ## install CNI 
 -> calico, anhand der onprem doku
 
+ > calico (or every cni) need pod-network-cidr defined at kubeadm init or it wont start
+ 
+ 

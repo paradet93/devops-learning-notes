@@ -1,0 +1,2 @@
+- k8s application
+- https://github.com/louislam/uptime-kuma
