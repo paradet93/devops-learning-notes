@@ -1,0 +1,4 @@
+- learn more about http status codes
+- what is /healthz
+	- originate from Google's internal practices. There are different endpoints with "z" attached, calles "[[z-pages]]"
+- 

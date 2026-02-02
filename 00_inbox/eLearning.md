@@ -484,3 +484,340 @@ kubectl exec cyan-black-cka28-trb -- sh -c 'curl cyan-svc-cka28-trb.cyan-ns-cka2
 ```
 
 It should not work from this pod. So its looking good now.
+
+
+# mock exam 4
+- Probes
+
+## Q1
+-> learn more about probes
+-> check solution
+
+### Q2
+-> check solution
+
+#### question + solution
+Solve this question on: `ssh cluster3-controlplane`  
+  
+  
+Utilize **helm** to **search** for the **repository URL** of the Bitnami version of the **nginx** **repository**. Ensure that you save the **repository URL** in the file located at `/root/nginx-helm-url.txt` on the `cluster3-controlplane`.
+
+---
+#### SSH into the Control Plane
+
+Run the following command to access **cluster3-controlplane**:
+
+```sh
+ssh cluster3-controlplane
+```
+
+#### 1. Check repo url for the nginx official repository
+
+Run the Helm command below to list the repository URLs:
+
+```
+helm search hub nginx --list-repo-url | head -n15
+URL                                                     CHART VERSION   APP VERSION                             DESCRIPTION                                             REPO URL                                          
+https://artifacthub.io/packages/helm/krakazyabr...      1.0.0           1.19.0                                  Nginx Helm chart for Kubernetes                         https://krakazyabra.github.io/microservices       
+https://artifacthub.io/packages/helm/jfrog/nginx        15.1.5          1.25.2                                  NGINX Open Source is a web server that can be a...      https://charts.jfrog.io                           
+https://artifacthub.io/packages/helm/ashu-nginx...      0.1.0           1.16.0                                  A Helm chart for Kubernetes                             https://redashu.github.io/test-helm/              
+https://artifacthub.io/packages/helm/zrepo-test...      5.1.5           1.16.1                                  Chart for the nginx server                              http://pqbbvd.natappfree.cc/charts/index.yaml     
+https://artifacthub.io/packages/helm/wiremind/n...      2.1.1                                                   An NGINX HTTP server                                    https://wiremind.github.io/wiremind-helm-charts   
+https://artifacthub.io/packages/helm/dhinesh/nginx      19.0.2          1.27.4                                  NGINX Open Source is a web server that can be a...      oci://registry-1.docker.io/bitnamicharts/nginx    
+https://artifacthub.io/packages/helm/dysnix/nginx       7.1.8           1.19.4                                  Chart for the nginx server                              https://dysnix.github.io/charts                   
+https://artifacthub.io/packages/helm/bitnami-ak...      13.2.12         1.23.2                                  NGINX Open Source is a web server that can be a...      https://marketplace.azurecr.io/helm/v1/repo       
+https://artifacthub.io/packages/helm/cloudnativ...      3.2.0           1.16.0                                  Chart for the nginx server                              https://cloudnativeapp.github.io/charts/curated/  
+https://artifacthub.io/packages/helm/shubhamtat...      0.1.12          1.19.6                                  Nginx Helm chart for Kubernetes                         https://shubhamtatvamasi.github.io/helm           
+https://artifacthub.io/packages/helm/test-nginx...      0.1.0           1.16.0                                  A Helm chart for Kubernetes                             https://vizarg.github.io/helm-chart-nginx/nginx   
+https://artifacthub.io/packages/helm/bitnami/nginx      19.0.2          1.27.4                                  NGINX Open Source is a web server that can be a...      https://charts.bitnami.com/bitnami                
+https://artifacthub.io/packages/helm/matic-insu...      1.1.1           1.1.1                                   A Nginx Helm chart for Kubernetes                       https://matic-insurance.github.io/helm-charts     
+https://artifacthub.io/packages/helm/onurs-repo...      0.2.0           1.20.2                                  Helm chart for nginx-1.20.2                             https://rezoruno.github.io/helm-charts
+```
+
+#### Capture the Repository URL
+
+Store the official Nginx repository URL by executing the following command:
+
+```sh
+echo "https://charts.bitnami.com/bitnami" > /root/nginx-helm-url.txt
+```
+### q3
+
+### Q9
+-> my solution
+```bash title='my solution' fold
+cluster1-controlplane ~ ➜  etcdutl --data-dir /root/default.etcd snapshot restore /opt/cluster1_backup_to_restore.db 
+2026-02-02T20:12:47Z    info    snapshot/v3_snapshot.go:265     restoring snapshot      {"path": "/opt/cluster1_backup_to_restore.db", "wal-dir": "/root/default.etcd/member/wal", "data-dir": "/root/default.etcd", "snap-dir": "/root/default.etcd/member/snap", "initial-memory-map-size": 10737418240}
+2026-02-02T20:12:47Z    info    membership/store.go:141 Trimming membership information from the backend...
+2026-02-02T20:12:47Z    info    membership/cluster.go:421       added member    {"cluster-id": "cdf818194e3a8c32", "local-member-id": "0", "added-peer-id": "8e9e05c52164694d", "added-peer-peer-urls": ["http://localhost:2380"]}
+2026-02-02T20:12:47Z    info    snapshot/v3_snapshot.go:293     restored snapshot       {"path": "/opt/cluster1_backup_to_restore.db", "wal-dir": "/root/default.etcd/member/wal", "data-dir": "/root/default.etcd", "snap-dir": "/root/default.etcd/member/snap", "initial-memory-map-size": 10737418240}
+
+cluster1-controlplane ~ ➜  
+```
+--> worked!
+### Q10
+
+did not specify correct name of HPA ...
+
+### Q13
+> is "recreate" just delete and create? Or something else?
+
+> correct way to wait for container to start?
+
+```yaml title='my solution(wrong)' fold
+apiVersion: v1
+kind: Pod
+metadata:
+  name: elastic-app-cka02-arch
+spec:
+  containers:
+  - name: elastic-app
+    image: busybox:1.28
+    args:
+    - /bin/sh
+    - -c
+    - >
+      mkdir /var/log;
+      i=0;
+      while true;
+      do
+        echo "$(date) INFO $i" >> /var/log/elastic-app.log;
+        i=$((i+1));
+        sleep 1;
+      done
+    volumeMounts:
+    - name: varlog
+      mountPath: /var/log
+  initContainers:
+  - name: busybox
+    image: busybox
+    restartPolicy: Always
+    command: ['sh', '-c', 'sleep 20;tail -f /var/log/elastic-app.log']
+    volumeMounts:
+      - name: varlog
+        mountPath: /var/log/
+  volumes:
+  - name: varlog
+    emptyDir: {}
+```
+
+Solve this question on: `ssh cluster3-controlplane`  
+  
+  
+A pod called `elastic-app-cka02-arch` is running in the `default` namespace. The `YAML` file for this pod is available at `/root/elastic-app-cka02-arch.yaml` on the `cluster3-controlplane`. The single application container in this pod writes logs to the file `/var/log/elastic-app.log`.  
+  
+  
+One of our logging mechanisms needs to read these logs to send them to an upstream logging server, but we don't want to increase the read overhead for our main application container. So, you need to `recreate` this POD with an additional co-located container named `busybox` that will run along with the application container and print to the `STDOUT` by running the command `tail -f /var/log/elastic-app.log`. You can use the `busybox` image for this container.
+
+---
+Solution
+
+##### SSH into the `cluster3-controlplane` host
+
+```sh
+ssh cluster3-controlplane
+```
+
+Recreate the pod with a new container called `busybox`. Update the `/root/elastic-app-cka02-arch.yaml` YAML file as shown below:  
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: elastic-app-cka02-arch
+spec:
+  containers:
+  - name: elastic-app
+    image: busybox:1.28
+    args:
+    - /bin/sh
+    - -c
+    - >
+      mkdir /var/log; 
+      i=0;
+      while true;
+      do
+        echo "$(date) INFO $i" >> /var/log/elastic-app.log;
+        i=$((i+1));
+        sleep 1;
+      done
+    volumeMounts:
+    - name: varlog
+      mountPath: /var/log
+  - name: busybox
+    image: busybox:1.28
+    args: [/bin/sh, -c, 'tail -f  /var/log/elastic-app.log']
+    volumeMounts:
+    - name: varlog
+      mountPath: /var/log
+  volumes:
+  - name: varlog
+    emptyDir: {}
+```
+
+  
+  
+  
+Next, recreate the pod:  
+
+```sh
+student-node ~ ➜ kubectl replace -f /root/elastic-app-cka02-arch.yaml --force
+pod "elastic-app-cka02-arch" deleted
+pod/elastic-app-cka02-arch replaced
+
+student-node ~ ➜ 
+```
+
+### Q14
+> how does coreDNS work, what do i need to know??
+
+> what is the solution??
+
+
+
+Solve this question on: `ssh cluster3-controlplane`  
+  
+  
+The **CoreDNS** configuration in the cluster needs to be updated:
+
+Update the **CoreDNS** configuration in the cluster so that **DNS resolution** for `cka.local` works exactly like `cluster.local` and in addition to it.
+
+Test your configuration using the `jrecord/nettools` image by executing the following commands:
+
+```
+nslookup kubernetes.default.svc.cluster.local
+nslookup kubernetes.default.svc.cka.local
+```
+
+Solution
+
+##### SSH into the `cluster3-controlplane` host
+
+```sh
+ssh cluster3-controlplane
+```
+
+#### 1. Update the CoreDNS Configuration
+
+The CoreDNS configuration is stored in a ConfigMap. To edit this configuration, use the following command:
+
+```
+kubectl edit cm -n kube-system coredns
+```
+
+Below is the structure of the CoreDNS configuration:
+
+```
+apiVersion: v1
+data:
+  Corefile: |
+    .:53 {
+        errors
+        health {
+           lameduck 5s
+        }
+        ready
+        kubernetes cka.local cluster.local in-addr.arpa ip6.arpa {
+           pods insecure
+           fallthrough in-addr.arpa ip6.arpa
+           ttl 30
+        }
+        prometheus :9153
+        forward . /etc/resolv.conf {
+           max_concurrent 1000
+        }
+        cache 30
+        loop
+        reload
+        loadbalance
+    }
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+```
+
+#### 2. Restart the CoreDNS Deployment
+
+To apply the changes, restart the CoreDNS deployment using the command:
+
+```
+kubectl rollout restart deploy -n kube-system coredns
+```
+
+#### 3. Verify the Changes
+
+To verify the updates, execute the following commands:
+
+```
+kubectl run test --rm -it --image=jrecord/nettools --restart=Never -- nslookup kubernetes.default.svc.cluster.local
+kubectl run test --rm -it --image=jrecord/nettools --restart=Never -- nslookup kubernetes.default.svc.cka.local
+```
+### -Q16
+> correct way?
+yes, done
+### Q17 
+> correct way?
+
+forget sysctl enable
+
+solution: 
+
+Solve this question on: `ssh cluster5-controlplane`  
+  
+  
+A **debian package** for **cri-dockerd** `cri-dockerd_0.3.16.3-0.ubuntu-jammy_amd64.deb` is located in the **/root folder** on the `cluster5-controlplane`. As part of **cluster initialization**, install the package and make sure that **cri-docker service** is **up** and **enabled** on the system. Additionally, **enable IP forwarding** on the server.
+
+Solution
+
+#### SSH into the Control Plane
+
+To access **cluster5-controlplane**, execute the following command:
+
+```sh
+ssh cluster5-controlplane
+```
+
+#### 1. Install cri-dockerd
+
+The Debian package for cri-dockerd is available at `cri-dockerd_0.3.16.3-0.ubuntu-jammy_amd64.deb`. Install it using the following command:
+
+```sh
+dpkg -i cri-dockerd_0.3.16.3-0.ubuntu-jammy_amd64.deb 
+```
+
+#### 2. Enable and Start the Service
+
+To enable and start the cri-dockerd service, use the following command:
+
+```
+sudo systemctl enable --now cri-docker.service
+```
+
+#### 3. Enable IP Forwarding
+
+To ensure that IP forwarding changes are persistent:
+
+1. Create a configuration file:
+
+```sh
+   vi /etc/sysctl.d/k8s.conf
+```
+
+2. Add the following line to the file:
+
+```sh
+   net.ipv4.ip_forward=1
+```
+
+3. Apply the changes:
+
+```sh
+   sysctl -p
+```
+
+To set the changes temporarily, execute the following command:
+
+```sh
+sysctl -w net.ipv4.ip_forward=1
+```

@@ -1,4 +1,6 @@
 - show Hostname: `hostname`
 - ? what is sysctl
 - What are/is "iptables"?
+- How do status codes work?
+- dpkg
 - 
